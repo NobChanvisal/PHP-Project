@@ -15,9 +15,9 @@
             <input type="text" name="productName" class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
         </div>
         <div class="flex mb-4">
-            <div class="w-1/2 mr-2">
+            <div class="w-1/3 mr-2">
                 <label for="categoryID"class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                <select name="categoryID" class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                <select name="categoryID" class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 block w-full p-2.5" required>
                     <option value="">Select Category</option>
                     <?php
                     // Fetch categories
@@ -27,14 +27,20 @@
                     ?>
                 </select>
             </div>
-            <div class="w-1/2">
-                <label for="productPrice"class="block text-sm font-medium text-gray-700 mb-1">Product Price</label>
-                <input type="number" name="productPrice"class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"  required>
+            <div class="w-2/3 flex">
+                <div>
+                    <label for="productPrice"class="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                    <input type="number" name="productPrice"class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"  required>
+                </div>
+                <div class=" ml-2">
+                    <label for="productPrevPrice"class="block text-sm font-medium text-gray-700 mb-1">PrevPrice</label>
+                    <input type="number" name="productPrevPrice"class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                </div>
             </div>
         </div>
         <div class="mb-4">
             <label for="productDescription"class="block text-sm font-medium text-gray-700">Product Description</label>
-            <textarea name="productDescription"rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            <textarea name="productDescription"rows="3" class="mt-1 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"></textarea>
         </div>
         <!-- <label for="productImage">Product Image:</label>
         
@@ -67,7 +73,7 @@
             </h4>
             <div class="flex items-center justify-center">
             <label>
-                <input type="file" hidden />
+                <input type="file" name="productImage" hidden />
                 <div
                 class="flex w-28 h-9 px-2 flex-col bg-indigo-600 rounded-full shadow text-white text-xs font-semibold leading-4 items-center justify-center cursor-pointer focus:outline-none"
                 >

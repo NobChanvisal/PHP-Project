@@ -1,48 +1,13 @@
 <header class=" ">
-      <nav class="z-30 fixed w-full top-0 bg-white border-gray-200 px-3 lg:px-6 py-2.5">
+      <nav class="z-30 fixed w-full top-0 bg-white shadow px-3 lg:px-6 py-4">
         <div class="pl-70 pr-10 w-full flex flex-wrap justify-between items-center">
           <div class="flex justify-start items-center">
             <a href="https://flowbite.com" class="flex mr-4">
-              <img
-                src="https://flowbite.s3.amazonaws.com/logo.svg"
-                class="mr-3 h-8"
-                alt="FlowBite Logo"
-              />
               <span class="self-center text-2xl font-semibold whitespace-nowrap"
-                >Flowbite</span
+                ><?= $title ?> </span
               >
             </a>
-            <form action="#" method="GET" class="hidden lg:block lg:pl-2">
-              <label for="topbar-search" class="sr-only">Search</label>
-              <div class="relative mt-1 lg:w-96">
-                <div
-                  class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none"
-                >
-                  <svg
-                    class="w-4 h-4 text-gray-500"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                    />
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  name="email"
-                  id="topbar-search"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-9 p-2.5"
-                  placeholder="Search"
-                />
-              </div>
-            </form>
+            
           </div>
           <div class="flex items-center justify-center lg:order-2">
             <button

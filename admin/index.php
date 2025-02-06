@@ -1,3 +1,4 @@
+<?php $title = "Dashboard" ?>
 <!DOCTYPE html>
 <html lang="en">
 <?php include 'include/head.inc.php' ?>

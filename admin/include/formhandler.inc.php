@@ -6,11 +6,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $productName = htmlspecialchars($_POST['productName']);
     $productDescription = htmlspecialchars($_POST['productDescription']);
     $productPrice = floatval($_POST['productPrice']);
+    $productPrevPrice = floatval($_POST['productPrevPrice']);
     $categoryID = intval($_POST['categoryID']);
 
     // Image Upload Handling (CRITICAL)
-    $target_dir = "../Image/"; // Directory to store uploaded images (make sure it exists and has correct permissions)
-    $target_file = $target_dir . basename($_FILES["productImage"]["name"]); // Use $_FILES["productImage"]
+    
+    $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/LampStore/image/products/";
+ // Directory to store uploaded images (make sure it exists and has correct permissions)
+    $target_file = basename($_FILES["productImage"]["name"]); // Use $_FILES["productImage"]
+    $target_move = $target_dir . basename($_FILES["productImage"]["name"]);
     $uploadOk = 1;
     $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
@@ -45,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($uploadOk == 0) {
         die("Sorry, your file was not uploaded."); // Stop here if upload failed
     } else {
-        if (move_uploaded_file($_FILES["productImage"]["tmp_name"], $target_file)) {  // Use $_FILES["productImage"]
+        if (move_uploaded_file($_FILES["productImage"]["tmp_name"], $target_move)) {  // Use $_FILES["productImage"]
             // Image uploaded successfully, now insert into database
 
             // Validate other inputs (as before)
@@ -54,13 +58,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
             try {
-                $sql = "INSERT INTO tbproducts (ProductName, ProductDescription, ProductPrice, CategoryID, image_url) 
-                        VALUES (:productName, :productDescription, :productPrice, :categoryID, :productImage)";
+                $sql = "INSERT INTO tbproducts (pro_name, description, price, prevPrice, CategoryID, imageUrl) 
+                        VALUES (:productName, :productDescription, :productPrice, :productPrevPrice, :categoryID, :productImage)";
                 $stmt = $pdo->prepare($sql);
 
                 $stmt->bindParam(':productName', $productName);
                 $stmt->bindParam(':productDescription', $productDescription);
                 $stmt->bindParam(':productPrice', $productPrice);
+                $stmt->bindParam(':productPrevPrice', $productPrevPrice);
                 $stmt->bindParam(':categoryID', $categoryID);
                 $stmt->bindParam(':productImage', $target_file); // Store the path!
 
@@ -82,14 +87,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-</body>
-</html>

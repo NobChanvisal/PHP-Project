@@ -40,7 +40,7 @@
           <div class=" flex flex-col items-center text-center">
               <h1 class=" pb-3 text-4xl">Modern Table Lamps</h1>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-              <a href="Shop.php?category=Table Lamps" class="text-white bg-gradient-to-br from-green-400 to-blue-600 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-green-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-4 me-2 mb-2">View All Product</a>
+              <a href="Shop.php?category=1" class="text-white bg-gradient-to-br from-green-400 to-blue-600 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-green-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-4 me-2 mb-2">View All Product</a>
           </div>
           <div class=" w-full  justify-self-end">
             <img class=" w-full object-cover max-h-[450px]" src="https://brightech.com/cdn/shop/files/Serena.png?v=1708985652&width=576" alt="">
@@ -55,7 +55,7 @@
           <div class=" flex flex-col items-center text-center">
               <h1 class=" pb-3 text-4xl">The Best Ceiling Lamps</h1>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-              <a href="Shop.php?category=Ceiling Lamps" class="text-white bg-gradient-to-br from-green-400 to-blue-600 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-green-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-4 me-2 mb-2">View All Product</a>
+              <a href="Shop.php?category=2" class="text-white bg-gradient-to-br from-green-400 to-blue-600 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-green-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-4 me-2 mb-2">View All Product</a>
           </div>
       </div>
     </section>

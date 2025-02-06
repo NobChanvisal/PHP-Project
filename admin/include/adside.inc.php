@@ -42,13 +42,13 @@
                     </a>
                 </li>
                 <li class="mb-1">
-                    <a class="flex items-center p-2 rounded-lg <?= onActive('invoice.php') ?>" href="invoice.php">
+                    <a class="flex items-center p-2 rounded-lg <?= onActive('orders.php') ?>" href="orders.php">
                         <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-file-dollar"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M14 11h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5" /><path d="M12 17v1m0 -8v1" /></svg>
-                        <span class="text-sm pl-2">Invoices</span>
+                        <span class="text-sm pl-2">Orders</span>
                     </a>
                 </li>
                 <li class="mb-1">
-                    <a class="flex items-center p-2 rounded-lg <?= onActive('message.php') ?>" href="invoice.php">
+                    <a class="flex items-center p-2 rounded-lg <?= onActive('message.php') ?>" href="message.php">
                         <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-message-dots"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 11v.01" /><path d="M8 11v.01" /><path d="M16 11v.01" /><path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3z" /></svg>
                         <span class="text-sm pl-2">Message</span>
                     </a>

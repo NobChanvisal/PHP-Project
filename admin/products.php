@@ -9,22 +9,48 @@ try {
     die("Query failed: " . $e->getMessage());
 }
 ?> 
-
+<?php $title = "Products" ?>
 <!DOCTYPE html>
 <html lang="en">
 <?php include 'include/head.inc.php' ?>
 <body class=" bg-slate-50">
-    <img src="" alt="">
-    <?php include 'include/adside.inc.php' ?>
     <?php include 'include/header.inc.php' ?>
-    <main class="ml-64 mr-3 p-6 pt-21">
-      <div class=" py-5">
+    <?php include 'include/adside.inc.php'?>
+    
+  <main class="ml-64 mr-3 p-6 pt-21">
+      <div class="size-full py-5">
         <div class="bg-white shadow-sm rounded-lg p-6">
           <div class="grid grid-cols-2 -mx-2 items-center">
             <div class="w-full px-2">
               <div class="flex flex-wrap -mx-2">
                 <div class="w-1/2 px-2">
-                  <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Search product..">
+                  <div class="relative">
+                    <div
+                      class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
+                      <svg
+                        class="w-4 h-4 text-gray-500"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                        />
+                      </svg>
+                    </div>
+                    <input
+                      type="text"
+                      name="email"
+                      id="topbar-search"
+                      class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-9 p-2.5"
+                      placeholder="Search"
+                    />
+                  </div>
                 </div>
                 <div class="w-1/4 px-2">
                   <button class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50">
@@ -109,7 +135,7 @@ try {
               <th scope="col" class="px-4 py-3">Category</th>
               <th scope="col" class="px-4 py-3">Price</th>
               <th scope="col" class="px-4 py-3 text-nowrap">Prev-price</th>
-              <th scope="col" class="px-4 py-3">Description</th>
+              <th scope="col" class="px-4 py-3 max-w-xs">Description</th>
               <th scope="col" class="px-4 py-3 text-nowrap">Create Date</th>
               <th scope="col" class="px-4 py-3">Action</th>
             </tr>
@@ -163,7 +189,7 @@ try {
                 </td>
                 <td class="px-4 py-4">$<?php echo $product['price'] ?></td>
                 <td class="px-4 py-4"><?php echo ($product['prevPrice'] > 0 ? "$" . $product['prevPrice'] : "Null"); ?></td>
-                <td class="px-4 py-4 line-clamp-1"><?php echo $product['description'] ?></td>
+                <td class="px-4 py-4 max-w-xs line-clamp-1"><?php echo $product['description'] ?></td>
                 <td class="px-4 py-4 text-nowrap text-[13px]"><?php echo $product['create_date'] ?></td>
                 <td class="px-4 py-4">
                   <div class="flex items-center">
@@ -171,7 +197,7 @@ try {
                       >Edit</a
                     >
                     <a
-                      href="#"
+                      href="delete_product.php?id=<?php echo $product['id']; ?>" onclick="return confirm('Are you sure?')"
                       class="font-medium text-red-600 hover:underline ms-3"
                       >Remove</a
                     >
