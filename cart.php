@@ -24,7 +24,8 @@ try {
 <?php include 'include/head.inc.php'; ?>
 <body>
 <?php include 'include/header.inc.php'; ?>
-<section class="max-w-screen-lg pt-[120px] mx-auto p-6 bg-white">
+<?php if (!empty($cartItems)) :  ?>
+    <section class="max-w-screen-lg pt-[120px] mx-auto p-6 bg-white">
     <h1 class="text-4xl font-bold mb-10 text-center underline underline-offset-8">Shopping Cart</h1>
     <table class="w-full border-collapse">
         <tr class="bg-gray-50 border-b">
@@ -45,7 +46,16 @@ try {
         </tr>
         <?php endforeach; ?>
     </table>
-</section>
+    <form action="checkout.php" method="POST" class="text-center mt-6">
+        <input type="hidden" name="user_id" value="<?php echo $userId; ?>">
+        <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded">Proceed to Checkout</button>
+    </form>
+    </section>
+    <?php else : ?>
+        <section class="max-w-screen-lg pt-[120px] mx-auto p-6 bg-white text-center">
+            <p class="text-2xl text-gray-600">Your cart is empty!</p>
+        </section>
+    <?php endif; ?>
 <?php include 'include/footer.inc.php'; ?>
 </body>
 </html>

@@ -2,7 +2,7 @@
 require_once 'include/dbh.inc.php';
 
     try{
-        $sql = "SELECT id, username, email, created_date FROM tbusers ORDER BY id DESC";
+        $sql = "SELECT id, user_id, email, created_date FROM tbusers ORDER BY id DESC";
         $result = $pdo->query($sql);
         $users = $result->fetchAll(PDO::FETCH_ASSOC);          
     } catch (PDOException $e) {
