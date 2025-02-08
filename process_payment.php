@@ -15,17 +15,20 @@ $payerID = $data['payerID'];
 $totalAmount = $data['total_amount'];
 $orderID = $data['orderID'];
 $productItems = json_encode($data['product_items']);
+$deliveryDetails = $data['delivery_details'];
+$address = $deliveryDetails['country'] . ", " . $deliveryDetails['city'];
 
 try {
     // Insert order into tbcheckout
-    $stmt = $pdo->prepare("INSERT INTO tbcheckout (user_id, payer_id, order_id, total_amount, payment_status, product_items) 
-                           VALUES (:user_id, :payerID, :orderID, :total_amount, 'Paid', :product_items)");
+    $stmt = $pdo->prepare("INSERT INTO tbcheckout (user_id, payer_id, order_id, total_amount, payment_status, product_items, address) 
+                           VALUES (:user_id, :payerID, :orderID, :total_amount, 'Paid', :product_items, :cus_address)");
     $stmt->execute([
         'user_id' => $userId,
         'payerID' => $payerID,
         'orderID' => $orderID,
         'total_amount' => $totalAmount,
-        'product_items' => $productItems // Store product items
+        'product_items' => $productItems, // Store product items
+        'cus_address' => $address
     ]);
 
     // Remove items from tbcart

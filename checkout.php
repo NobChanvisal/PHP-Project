@@ -49,7 +49,7 @@ try {
 <main>
     <!-- <h1 class="text-4xl font-bold mb-10 text-center underline underline-offset-8">Checkout</h1> -->
     <section class="bg-white antialiased">
-      <form action="#" class="px-5 sm:px-10 max-w-6xl mx-auto pt-[140px]">
+      <form id="checkoutForm" action="#" class="px-5 sm:px-10 max-w-6xl mx-auto pt-[140px]">
         <h1 class="text-4xl font-bold mb-26 text-center underline underline-offset-8">Checkout</h1>
         <div class="mt-6 sm:mt-8 lg:flex lg:items-start lg:gap-12 xl:gap-16">
           <div class="min-w-0 flex-1 space-y-8">
@@ -208,7 +208,7 @@ try {
     
 
     <script src="https://www.paypal.com/sdk/js?client-id=ATzlLb_R9Ub3MshTOLuUFbMKQpHL37PU4YiEr1708LJFnFdeg2gQy0ohZe4b6WxTFM_ThEr2UR8uVy-_&currency=USD"></script>
-    <script>
+  <script>
     function validateForm() {
         const requiredFields = ['name', 'phone', 'email', 'country', 'city'];
         let isValid = true;
@@ -242,15 +242,19 @@ try {
         },
         onApprove: function(data, actions) {
             return actions.order.capture().then(function(details) {
+              const formData = new FormData(document.getElementById('checkoutForm'));
+                            const deliveryDetails = {};
+                            formData.forEach((value, key) => deliveryDetails[key] = value);
                 fetch('process_payment.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        user_id: <?php echo $userId; ?>,
-                        payerID: details.payer.payer_id,
-                        orderID: details.id,
-                        total_amount: '<?php echo number_format($totalWithTax, 2, '.', ''); ?>',
-                        product_items: productItems // Include product items
+                      user_id: <?php echo $userId; ?>,
+                                    payerID: details.payer.payer_id,
+                                    orderID: details.id,
+                                    total_amount: '<?php echo number_format($totalWithTax, 2, '.', ''); ?>',
+                                    product_items: productItems,
+                                    delivery_details: deliveryDetails
                     })
                 }).then(response => response.json())
                   .then(data => {

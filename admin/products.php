@@ -100,7 +100,7 @@ try {
           <!-- Modal Content -->
           <div class="relative z-10 bg-white rounded-lg w-11/12 md:w-1/2 lg:w-1/3 p-6 mx-auto mt-20">
             <div class="flex justify-between items-center pb-3">
-              <h3 class="text-lg font-semibold mb-1">Add New Products</h3>
+              <h3 class="text-lg font-semibold mb-1 border-b">Add New Products</h3>
               <button type="button" class="cursor-pointer text-gray-500 hover:text-gray-700" onclick="closeModal()">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
