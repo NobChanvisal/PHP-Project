@@ -21,6 +21,51 @@ require_once 'include/dbh.inc.php';
     <main class="ml-70 p-6 pt-21">
       <div class=" size-full py-5">
             
+          <div class="grid gap-4 md:grid-cols-2 pb-5">
+                      <div class=" w-1/2 self-end">
+                          <div class="relative">
+                              <div
+                                class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
+                                <svg
+                                  class="w-4 h-4 text-gray-500"
+                                  aria-hidden="true"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                                  />
+                                </svg>
+                              </div>
+                              <input
+                                type="text"
+                                name="email"
+                                id="topbar-search"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-9 p-2.5"
+                                placeholder="Search"
+                              />
+                            </div>
+                      </div>
+                      <div class="flex space-x-7 justify-self-end">
+                        <div class=" w-fit px-6 py-2 min-w-44">
+                        <div class="flex justify-end">
+                            <button type="button" class="flex cursor-pointer items-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600" onclick="openModal()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+                            </svg>
+                            <span class="ml-2">Add Customers</span>
+                            </button>
+                        </div>
+
+                        </div>
+                          
+                      </div>
+          </div> 
 <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
     <table class="w-full text-sm text-left rtl:text-right text-gray-500 ">
         <thead class="text-xs text-gray-700 uppercase bg-gray-200 ">

@@ -29,6 +29,7 @@ if (isset($_GET['id'])) {
 <?php include 'include/header.inc.php'; ?>
 <section class=" pt-[100px] bg-white antialiased">
     <div class="max-w-screen-xl px-4 mx-auto 2xl:px-0">
+      <div id="cart-feedback"></div>
       <div class="lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-16">
         <div class="shrink-0 max-w-md lg:max-w-lg mx-auto">
           <img class="w-full" src="image/products/<?php echo $product['imageUrl'];?>" alt="" />
@@ -180,6 +181,7 @@ document.addEventListener("DOMContentLoaded", function() {
         button.addEventListener("click", function(event) {
             event.preventDefault();
             let productId = this.getAttribute("data-product-id");
+            let feedbackContainer = document.getElementById("cart-feedback");
 
             fetch("add_to_cart.php", {
                 method: "POST",
@@ -190,10 +192,29 @@ document.addEventListener("DOMContentLoaded", function() {
             })
             .then(response => response.json())
             .then(data => {
-                alert(data.message);
+                // Clear previous feedback
+                feedbackContainer.innerHTML = "";
+                
+                // Create feedback element
+                let feedbackDiv = document.createElement("div");
+                feedbackDiv.className = `mb-4 p-4 rounded ${
+                    data.status === "success" 
+                        ? "bg-green-100 text-green-700" 
+                        : "bg-red-100 text-red-700"
+                }`;
+                feedbackDiv.textContent = data.message;
+                
+                // Add feedback to container
+                feedbackContainer.appendChild(feedbackDiv);
+                
+                // Remove feedback after 5 seconds
+                setTimeout(() => {
+                    feedbackDiv.remove();
+                }, 5000);
             })
             .catch(error => {
                 console.error("Error:", error);
+                feedbackContainer.innerHTML = '<div class="mb-4 p-4 bg-red-100 text-red-700 rounded">Error adding to cart</div>';
             });
         });
     });

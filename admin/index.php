@@ -6,9 +6,9 @@
 <?php include 'include/adside.inc.php' ?>
 <?php include 'include/header.inc.php' ?>
 <main>
-  <div class="container">
+  <div class="">
     <div class=" ml-70">
-      <div class="p-6 pt-21">
+      <div class="p-6 pt-21 ">
         <div class="">
             <div class="grid gap-4 md:grid-cols-3 pb-5">
                 <div class="relative p-6 rounded-2xl bg-white shadow">

@@ -1,15 +1,8 @@
 <?php 
-  require_once 'include/dbh.inc.php'; // Include database connection
-
-  try {
-      $sql = "SELECT CategoryID, CategoryName FROM tbcategory";
-      $stmt = $pdo->query($sql);
-  } catch (PDOException $e) {
-      die("Error fetching categories: " . $e->getMessage());
-  }
+ $stmt = $db->readAll('tbcategory');
 
 ?>
-<form action="./include/formhandler.inc.php" method="post" enctype="multipart/form-data">
+<form class=" w-full" action="./include/formhandler.inc.php" method="post" enctype="multipart/form-data">
         <div class="mb-4">
             <label for="productName"  class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
             <input type="text" name="productName" class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
@@ -22,14 +15,14 @@
                     <?php
                     // Fetch categories
                     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                        echo "<option value='" . htmlspecialchars($row['CategoryID']) . "'>" . htmlspecialchars($row['CategoryName']) . "</option>";
+                        echo "<option value='" . htmlspecialchars($row['id']) . "'>" . htmlspecialchars($row['CategoryName']) . "</option>";
                     }
                     ?>
                 </select>
             </div>
             <div class="w-2/3 flex">
                 <div>
-                    <label for="productPrice"class="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                    <label for="productPrice"class="block max-w-1/2 text-sm font-medium text-gray-700 mb-1">Price</label>
                     <input type="number" name="productPrice"class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"  required>
                 </div>
                 <div class=" ml-2">
@@ -84,4 +77,4 @@
         </div>
         </div>
         <button type="submit" value="Submit" class="mt-2 cursor-pointer text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Insert Product</button>
-    </form>
+</form>

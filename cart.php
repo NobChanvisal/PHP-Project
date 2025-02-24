@@ -1,6 +1,8 @@
 <?php
 session_start();
-require_once 'include/dbh.inc.php';
+require_once './DB_lib/Database.php';
+
+$db = new Database();
 
 if (!isset($_SESSION['user_id'])) {
     die("Please log in to view your cart.");
@@ -8,15 +10,28 @@ if (!isset($_SESSION['user_id'])) {
 
 $userId = $_SESSION['user_id'];
 
-try {
-    $stmt = $pdo->prepare("SELECT tbcart.id AS cart_id, tbproducts.pro_name, tbproducts.price, tbproducts.imageUrl, tbcart.quantity 
-                           FROM tbcart 
-                           JOIN tbproducts ON tbcart.product_id = tbproducts.id 
-                           WHERE tbcart.user_id = :user_id");
-    $stmt->execute(['user_id' => $userId]);
-    $cartItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    die("Query failed: " . $e->getMessage());
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pro_id'])) {
+    $proId = $_POST['pro_id']; // Corrected variable name
+    $result = $db->delete("tbcart", "product_id = ? AND user_id = ? ", [$proId, $userId]); // Use parameterized query
+    if ($result !== true) {
+        die("Delete failed: " . $result);
+    }
+    // Redirect to avoid resubmission on refresh
+    header("Location: cart.php"); // Or wherever you want to redirect
+    exit(); // Important after header redirect
+}
+
+// Fetch cart items
+$cartItems = $db->query(
+    "SELECT tbcart.id AS cart_id,tbproducts.id, tbproducts.pro_name, tbproducts.price, tbproducts.imageUrl, tbcart.quantity 
+     FROM tbcart 
+     JOIN tbproducts ON tbcart.product_id = tbproducts.id 
+     WHERE tbcart.user_id = :user_id",
+    ['user_id' => $userId]
+);
+
+if (is_string($cartItems)) {
+    die("Query failed: " . $cartItems);
 }
 ?>
 <!DOCTYPE html>
@@ -38,11 +53,19 @@ try {
             <td class="p-2 pl-1">
                 <div class=" flex">
                     <img src="image/products/<?php echo $item['imageUrl'];?>"alt="Product Image" class="w-16 border border-slate-400">
-                    <p class=" pl-2"><?php echo $item['pro_name']; ?></p>
+                    <div class=" pl-2">
+                        <p><?php echo $item['pro_name']; ?></p>
+                    </div>
                 </div>
             </td>
             <td class="p-2">$<?php echo $item['price']; ?></td>
             <td class="p-2"><?php echo $item['quantity']; ?></td>
+            <td>
+                <form action="" method="POST" onsubmit="return confirm('Are you sure you want to delete this invoice?');">
+                    <input type="hidden" name="pro_id" value="<?php echo $item['id']; ?>">
+                    <button type="submit" class="font-medium cursor-pointer text-red-600 hover:underline">Remove</button>
+                </form>
+            </td>
         </tr>
         <?php endforeach; ?>
     </table>
