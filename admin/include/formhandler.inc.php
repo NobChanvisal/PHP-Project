@@ -1,7 +1,8 @@
 <?php
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    require_once 'dbh.inc.php';
+    require_once '../../DB_lib/Database.php';
+    $db = new Database();
 
     $productName = htmlspecialchars($_POST['productName']);
     $productDescription = htmlspecialchars($_POST['productDescription']);
@@ -33,7 +34,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Check file size
-    if ($_FILES["productImage"]["size"] > 500000) { // Example: 500KB limit
+    if ($_FILES["productImage"]["size"] > 500000) {
+     // Example: 500KB limit
         echo "Sorry, your file is too large.";
         $uploadOk = 0;
     }
@@ -57,25 +59,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 die("All fields except image are required."); // Improved message
             }
 
-            try {
-                $sql = "INSERT INTO tbproducts (pro_name, description, price, prevPrice, CategoryID, imageUrl) 
-                        VALUES (:productName, :productDescription, :productPrice, :productPrevPrice, :categoryID, :productImage)";
-                $stmt = $pdo->prepare($sql);
+            // try {
+            //     $sql = "INSERT INTO tbproducts (pro_name, description, price, prevPrice, CategoryID, imageUrl) 
+            //             VALUES (:productName, :productDescription, :productPrice, :productPrevPrice, :categoryID, :productImage)";
+            //     $stmt = $pdo->prepare($sql);
 
-                $stmt->bindParam(':productName', $productName);
-                $stmt->bindParam(':productDescription', $productDescription);
-                $stmt->bindParam(':productPrice', $productPrice);
-                $stmt->bindParam(':productPrevPrice', $productPrevPrice);
-                $stmt->bindParam(':categoryID', $categoryID);
-                $stmt->bindParam(':productImage', $target_file); // Store the path!
+            //     $stmt->bindParam(':productName', $productName);
+            //     $stmt->bindParam(':productDescription', $productDescription);
+            //     $stmt->bindParam(':productPrice', $productPrice);
+            //     $stmt->bindParam(':productPrevPrice', $productPrevPrice);
+            //     $stmt->bindParam(':categoryID', $categoryID);
+            //     $stmt->bindParam(':productImage', $target_file); // Store the path!
 
-                $stmt->execute();
+            //     $stmt->execute();
 
-                echo "Product inserted successfully!";
-            } catch (PDOException $e) {
-                die("Error inserting product: " . $e->getMessage());
-            }
-
+            //     echo "Product inserted successfully!";
+            // } catch (PDOException $e) {
+            //     die("Error inserting product: " . $e->getMessage());
+            // }
+            $data = [
+                'productName' => $productName,
+                'productDescription' =>$productDescription,
+                'productPrice' => $productPrice,
+                'productPrevPrice' => $productPrevPrice,
+                'categoryID' => $categoryID,
+                'productImage' =>$target_file
+            ];
+            $result = $db->Insert('tbproducts', $data);
+            
         } else {
             die("Sorry, there was an error uploading your file.");
         }

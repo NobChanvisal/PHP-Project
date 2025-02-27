@@ -50,7 +50,6 @@ class Database {
             return "Error: " . $e->getMessage();
         }
     }
-
     // READ
     public function read($table, $id) {
         $sql = "SELECT * FROM $table WHERE id = :id";
@@ -108,16 +107,25 @@ class Database {
             return $e->getMessage();
         }
     }
-    public function sort($table, $column, $order = 'DESC', $allowedColumns = []) {
+    public function sort($table, $column, $order = 'ASC', $allowedColumns = [], $condition = []) {
         try {
-            // Validate the column against the allowed list; default to first allowed column if invalid
             $column = in_array($column, $allowedColumns) ? $column : ($allowedColumns[0] ?? 'id');
             // Sanitize sort order to prevent injection
-            $order = strtoupper($order) === 'DESC' ? 'DESC' : 'ASC';
-    
-            $query = "SELECT * FROM $table ORDER BY $column $order";
+            $order = strtoupper($order) === 'ASC' ? 'ASC' : 'DESC';
+            $query = "SELECT * FROM $table";
+            $params = [];
+            if (!empty($condition)) {
+                $whereClauses = [];
+                foreach ($condition as $key => $value) {
+                    // Use named placeholders to avoid SQL injection
+                    $whereClauses[] = "$key = :$key";
+                    $params[":$key"] = $value;
+                }
+                $query .= " WHERE " . implode(' AND ', $whereClauses);
+            }
+            $query .= " ORDER BY $column $order";
             $stmt = $this->pdo->prepare($query);
-            $stmt->execute();
+            $stmt->execute($params);
             return $stmt->fetchAll();
         } catch (PDOException $e) {
             return "Error: " . $e->getMessage();
