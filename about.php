@@ -25,7 +25,7 @@
             <div class=" grid sm:grid-cols-2 gap-8">
                 <div class="bg-white rounded-xl shadow-md overflow-hidden md:flex">
                     <div class="md:shrink-0">
-                        <img  class=" h-80 w-full object-cover md:h-full md:w-48" src="./image/me.jpg" alt="">
+                        <img  class=" h-80 w-full object-cover md:h-full md:w-48" src="https://i.pinimg.com/736x/e1/d9/80/e1d980332d7e913f8dd88c6350dcea25.jpg" alt="">
                     </div>
                     <div  class=" p-5">
                         <h1 class=" block mt-1 text-lg leading-tight font-medium text-black">Nob Chanvisal</h1>

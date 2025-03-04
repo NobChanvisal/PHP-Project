@@ -1,34 +1,45 @@
 <?php
 session_start();
-require_once 'include/dbh.inc.php';
+require_once './DB_lib/Database.php';
 
-// Check if the user is logged in
+
 if (!isset($_SESSION['user_id'])) {
     die("Please log in to view the invoice.");
 }
 
-// Get the order ID from the query parameter
-if (!isset($_GET['order_id'])) {
+
+if (!isset($_GET['order_id']) || empty($_GET['order_id'])) {
     die("Invalid request. Order ID is missing.");
 }
 $orderID = $_GET['order_id'];
 
-// Fetch payment details from the database
 try {
-    $stmt = $pdo->prepare("SELECT * FROM tbcheckout WHERE order_id = :order_id AND user_id = :user_id");
-    $stmt->execute([
-        'order_id' => $orderID,
-        'user_id' => $_SESSION['user_id']
-    ]);
-    $order = $stmt->fetch(PDO::FETCH_ASSOC);
+    $db = new Database();
 
-    if (!$order) {
-        die("Order not found.");
+  
+    $orders = $db->dbSelect(
+        'tbcheckout',                         
+        '*',                                  
+        'order_id = :order_id AND user_id = :user_id', 
+        '',                                  
+        [                                    
+            ':order_id' => $orderID,
+            ':user_id' => $_SESSION['user_id']
+        ]
+    );
+
+    if (empty($orders)) {
+        die("Order not found.");  
     }
 
-    // Decode product items
+    $order = $orders[0]; 
     $productItems = json_decode($order['product_items'], true);
-} catch (PDOException $e) {
+
+    if ($productItems === null) {
+        die("Error decoding product items.");
+    }
+
+} catch (Exception $e) {
     die("Error: " . $e->getMessage());
 }
 ?>

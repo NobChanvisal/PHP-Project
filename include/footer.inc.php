@@ -68,7 +68,7 @@
                         Contact
                     </a>
                 </div>
-                <span class="text-sm text-gray-500 text-center mt-2 sm:mt-0">© 2022 <a href="https://flowbite.com" class="hover:underline">Flowbite™</a>. All Rights Reserved.
+                <span class="text-sm text-gray-500 text-center mt-2 sm:mt-0">© 2025 <a href="" class="hover:underline">chanvisal-nob</a>. All Rights Reserved.
                 </span>
         </div>
     </div>

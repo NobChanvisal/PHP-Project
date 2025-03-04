@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'include/dbh.inc.php';
+require_once 'DB_lib/Database.php'; 
 
 $data = json_decode(file_get_contents("php://input"), true);
 
@@ -19,21 +19,25 @@ $deliveryDetails = $data['delivery_details'];
 $address = $deliveryDetails['country'] . ", " . $deliveryDetails['city'];
 
 try {
-    // Insert order into tbcheckout
-    $stmt = $pdo->prepare("INSERT INTO tbcheckout (user_id, payer_id, order_id, total_amount, payment_status, product_items, address) 
-                           VALUES (:user_id, :payerID, :orderID, :total_amount, 'Paid', :product_items, :cus_address)");
-    $stmt->execute([
-        'user_id' => $userId,
-        'payerID' => $payerID,
-        'orderID' => $orderID,
-        'total_amount' => $totalAmount,
-        'product_items' => $productItems, // Store product items
-        'cus_address' => $address
-    ]);
+    $db = new Database(); 
 
-    // Remove items from tbcart
-    $stmt = $pdo->prepare("DELETE FROM tbcart WHERE user_id = :user_id");
-    $stmt->execute(['user_id' => $userId]);
+    // Insert payment 
+    $checkoutData = [
+        'user_id' => $userId,
+        'payer_id' => $payerID,
+        'order_id' => $orderID,
+        'total_amount' => $totalAmount,
+        'payment_status' => 'Paid',
+        'product_items' => $productItems,
+        'address' => $address
+    ];
+
+    $db->insert('tbcheckout', $checkoutData);
+
+    
+    $where = 'user_id = :user_id';
+    $params = ['user_id' => $userId];
+    $db->delete('tbcart', $where, $params);
 
     echo json_encode(['status' => 'success', 'message' => 'Payment recorded']);
 } catch (PDOException $e) {

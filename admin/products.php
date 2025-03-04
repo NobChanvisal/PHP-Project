@@ -1,25 +1,12 @@
 <?php
 require_once '../DB_lib/Database.php';
 $db = new Database();
-// Handle sorting
-$categories = $db->readAll('tbcategory');
-$sortColumn = isset($_GET['sort']) ? $_GET['sort'] : 'id';
-$sortOrder = isset($_GET['order']) && strtoupper($_GET['order']) === 'ASC' ? 'ASC' : 'DESC';
-
-// Handle category filtering
-$categoryFilter = isset($_GET['category']) ? $_GET['category'] : '';
-
-// Allowed columns for sorting
-$allowedColumns = ['id', 'pro_name', 'price', 'create_date', 'description', 'prevPrice', 'CategoryID', 'imageUrl'];
-
-
-// Prepare condition for filtering
-$condition = !empty($categoryFilter) ? ['CategoryID' => $categoryFilter] : [];
-
-// Fetch products with filtering and sorting
-$products = $db->sort('tbproducts', $sortColumn, $sortOrder, $allowedColumns, $condition);
-// Fetch products with filter
-// Handle feedback messages
+$products = $db->dbSelect(
+    'tbproducts',
+    '*',
+    '',
+    'ORDER BY id DESC'
+);
 $successMessage = '';
 $errorMessage = '';
 
@@ -47,11 +34,11 @@ if (isset($_GET['delete'])) {
     }
 }
 
-// Handle Delete Request
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_product_id'])) {
     $id = $_POST['delete_product_id'];
     $result = $db->delete('tbproducts', "id = $id");
-    if ($result === true) {
+    if ($result) {
         header("Location: products.php?delete=success");
         exit();
     } else {
@@ -108,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_product_id'])) {
         // Allow certain file formats
         $allowed_types = array("jpg", "png", "jpeg", "gif");
         if (!in_array($imageFileType, $allowed_types)) {
-            echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+            echo "Sorry, only JPG, JPEG & GIF files are allowed.";
             $uploadOk = 0;
         }
 
@@ -123,13 +110,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_product_id'])) {
         }
     }
 
-    // Validate other inputs
+
     if (empty($productName) || empty($productPrice) || empty($categoryID)) {
         die("All fields except image are required.");
     }
 
-    $result = $db->update('tbproducts', $data, "id = $id");
-    if ($result === true) {
+    $result = $db->update('tbproducts',$id, $data);
+    if ($result) {
         header("Location: products.php?edit=success");
         exit();
     } else {
@@ -147,15 +134,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_product'])) {
     $categoryID = intval($_POST['categoryID']);
 
     
-
-    // Image Upload Handling (required for add)
     $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/LampStore/image/products/";
     $target_file = basename($_FILES["productImage"]["name"]);
     $target_move = $target_dir . $target_file;
     $uploadOk = 1;
     $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
-    // File Validation
+
     $check = getimagesize($_FILES["productImage"]["tmp_name"]);
     if ($check !== false) {
         $uploadOk = 1;
@@ -163,13 +148,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_product'])) {
         $uploadOk = 0;
     }
 
-    // Check if file already exists
+
     if (file_exists($target_file)) {
         echo "Sorry, file already exists.";
         $uploadOk = 0;
     }
 
-    // Check file size
+   
     if ($_FILES["productImage"]["size"] > 500000) { // 500KB limit
         echo "Sorry, your file is too large.";
         $uploadOk = 0;
@@ -219,137 +204,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_product'])) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script>
-        console.log("bbbbb");
-        function openModal() {
-            console.log("open");
-            document.getElementById('modals').classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('modals').classList.add('hidden');
-        }
-
-        function openEditModal(productId) {
-            // Fetch product data (simplified; you might want to use AJAX or PHP to populate)
-            const product = <?php echo json_encode($products); ?>.find(p => p.id === productId);
-            if (product) {
-                document.getElementById('edit_product_id').value = product.id;
-                document.getElementById('edit_product_name').value = product.pro_name;
-                document.getElementById('edit_product_description').value = product.description;
-                document.getElementById('edit_product_price').value = product.price;
-                document.getElementById('edit_product_prev_price').value = product.prevPrice || '';
-                document.getElementById('edit_category_id').value = product.CategoryID;
-                document.getElementById('edit_product_image').value = ''; // Reset file input
-                document.getElementById('editModals').classList.remove('hidden');
-            }
-        }
-
-        function closeEditModal() {
-            document.getElementById('editModals').classList.add('hidden');
-        }
-
-        function toggleDropDown(contentID) {
-            document.getElementById(contentID).classList.toggle('hidden');
-        }
-    </script>
+    
     <?php include 'include/head.inc.php' ?>
 </head>
 <body class="bg-slate-50">
     <?php include 'include/header.inc.php' ?>
     <?php include 'include/adside.inc.php'?>
-    <main class="ml-64 mr-3 p-6 pt-21">
-        <!-- Display Success or Error Message -->
+    <main class="ml-64 mr-3 p-6 pt-26">
+        <!-- Message -->
         <?php if ($successMessage): ?>
-            <div class="mb-4 p-4 bg-green-100 text-green-800 rounded-lg">
+            <div id="feedback-success" class="mb-4 p-4 bg-green-100 text-green-800 rounded-lg">
                 <?php echo htmlspecialchars($successMessage, ENT_QUOTES); ?>
             </div>
         <?php elseif ($errorMessage): ?>
-            <div class="mb-4 p-4 bg-red-100 text-red-800 rounded-lg">
+            <div id = "feedback-error" class="mb-4 p-4 bg-red-100 text-red-800 rounded-lg">
                 <?php echo htmlspecialchars($errorMessage, ENT_QUOTES); ?>
             </div>
         <?php endif; ?>
 
-        <div class="size-full py-5">
-            <div class="bg-white shadow-sm rounded-lg p-6 mb-5">
-                <div class="grid grid-cols-3 -mx-2 items-center">
-                    <div class="w-full px-2 col-span-2">
-                        <div class="flex -mx-2">
-                            <div class="w-1/3 px-2 gap-2">
-                                <div class="relative">
-                                    <div class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
-                                        <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                                        </svg>
-                                    </div>
-                                    <input type="text" name="search" id="topbar-search" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-9 p-2.5" placeholder="Search"/>
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-2">
-                                <div class="px-2">
-                                    <form method="GET" class="flex items-center">
-                                        <select name="category" 
-                                                class="px-4 py-2 border border-gray-300 rounded-md mr-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                                                onchange="this.form.submit()">
-                                                <option value="">
-                                                    Filter
-                                                </option>
-                                            <?php foreach($categories as $category): ?>
-                                                <option value="<?php echo htmlspecialchars($category['id']); ?>"
-                                                        <?php echo $categoryFilter === $category['id'] ? 'selected' : ''; ?>>
-                                                    <?php echo htmlspecialchars($category['CategoryName']); ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                        <input type="hidden" name="sort" value="<?php echo $sortColumn; ?>">
-                                        <input type="hidden" name="order" value="<?php echo $sortOrder; ?>">
-                                    </form>
-                                </div>
-                                <div class="px-2">
-                                    <div class="relative">
-                                        <button onclick="toggleDropDown('sortDropdown')" class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50" id="sortButton">
-                                            Sort By
-                                            <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                            </svg>
-                                        </button>
-                                        <div class="absolute hidden right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5" id="sortDropdown">
-                                            <div class="py-1">
-                                                <a href="?sort=pro_name&order=ASC&category=<?=$categoryFilter?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Name (A-Z)</a>
-                                                <a href="?sort=pro_name&order=DESC&category=<?=$categoryFilter?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Name (Z-A)</a>
-                                                <a href="?sort=price&order=ASC&category=<?=$categoryFilter?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Price (Low to High)</a>
-                                                <a href="?sort=price&order=DESC&category=<?=$categoryFilter?>" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Price (High to Low)</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg text-sm px-5 py-2.5 me-2 mb-2 ">
-                                <a href="?" class=" ">Reset Filters</a>
-                            </div>
+            <div class="grid gap-4 md:grid-cols-2 pb-5">
+                <div class="w-1/2 self-end">
+                    <div class="relative">
+                        <div class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                            </svg>
                         </div>
+                        <input type="text" name="email" id="topbar-search" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-9 p-2.5" placeholder="Search"/>
                     </div>
-                    <div class="w-full px-2 flex justify-end">
-                        <button id="btn-model" onclick="openModal()" class="flex cursor-pointer items-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                </div>
+                <div class="flex space-x-7 justify-self-end">
+                    <div class="w-fit px-6 py-2 min-w-44">
+                        <div class="flex justify-end">
+                        <button id="btn-model" onclick="openModal('addproduct')" class="flex cursor-pointer items-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
                                 <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
                             </svg>
                             <span class="ml-2">Add Products</span>
                         </button>
+                        </div>
                     </div>
                 </div>
-            </div>  
+            </div> 
 
             <!-- Add Product Modal -->
-            <div class="fixed inset-0 z-50 hidden" id="modals">
+            <div class="fixed inset-0 z-50 hidden" id="modal-addproduct">
                 <?php 
                 $categories = $db->readAll('tbcategory');
                 ?>
-                <div class="absolute inset-0 bg-black/50" onclick="closeModal()"></div>
+                <div class="absolute inset-0 bg-black/50" onclick="closeModal('addproduct')"></div>
                 <div class="relative z-10 bg-white rounded-lg w-11/12 md:w-1/2 lg:w-1/3 p-6 mx-auto mt-20">
                     <div class="flex justify-between items-center pb-3">
                         <h3 class="text-lg font-semibold mb-1 border-b">Add New Products</h3>
-                        <button type="button" class="cursor-pointer text-gray-500 hover:text-gray-700" onclick="closeModal()">
+                        <button type="button" class="cursor-pointer text-gray-500 hover:text-gray-700" onclick="closeModal('addproduct')">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
@@ -548,5 +455,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_product'])) {
             </div>
         </div>
     </main>
+    <script src="./js/events.js"></script>
+    <script>
+        function openEditModal(productId) {
+            const product = <?php echo json_encode($products); ?>.find(p => p.id === productId);
+            if (product) {
+                document.getElementById('edit_product_id').value = product.id;
+                document.getElementById('edit_product_name').value = product.pro_name;
+                document.getElementById('edit_product_description').value = product.description;
+                document.getElementById('edit_product_price').value = product.price;
+                document.getElementById('edit_product_prev_price').value = product.prevPrice || '';
+                document.getElementById('edit_category_id').value = product.CategoryID;
+                document.getElementById('edit_product_image').value = ''; // Reset file input
+                document.getElementById('editModals').classList.remove('hidden');
+            }
+        }
+        function closeEditModal() {
+            document.getElementById('editModals').classList.add('hidden');
+        }
+        
+    </script>
 </body>
 </html>

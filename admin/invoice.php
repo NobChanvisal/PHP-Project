@@ -9,18 +9,18 @@ $db = new Database();
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['invoice_id'])) {
     $invoiceId = $_POST['invoice_id'];
     $result = $db->delete('tbcheckout', "id = $invoiceId"); 
-    if ($result === true) {
+    if ($result) {
         header("Location: invoice.php?delete=success");
         exit();
     } else {
-        header("Location: invoices.php?delete=error&message=" . urlencode($result));
+        header("Location: invoice.php?delete=error&message=" . urlencode($result));
         exit();
     }
 }
 
 // Fetch invoices and totals
 try {
-    $invoices = $db->readAll('tbcheckout');
+    $invoices = $db->dbSelect('tbcheckout');
     
     // Calculate totals
     $totalAmount = array_sum(array_column($invoices, 'total_amount'));
@@ -131,7 +131,7 @@ $title = "Invoices";
                             <td class="px-6 py-4"><?php echo htmlspecialchars($usersName, ENT_QUOTES);?></td> 
                             <td><?php echo htmlspecialchars($emails, ENT_QUOTES); ?></td>
                             <td class="px-6 py-4">
-                                <button id="btn-modal" onclick="openModal(<?php echo $invoice['id']; ?>)" class="font-medium cursor-pointer text-blue-600 hover:underline" type="button">View Items</button>
+                                <button id="btn-modal" onclick="openModal(<?php echo $invoice['id']; ?>)" class="font-medium cursor-pointer text-nowrap text-blue-600 hover:underline" type="button">View Items</button>
                                 <!-- Modal code remains the same -->
                                 <div id="modal-<?php echo $invoice['id']; ?>" class="fixed inset-0 z-50 hidden" tabindex="-1" aria-hidden="true">
                                     <!-- Modal content (unchanged) -->
@@ -196,29 +196,7 @@ $title = "Invoices";
         </div>
       </div>
     </main>
-
-    <script>
-        function openModal(id) {
-            document.getElementById(`modal-${id}`).classList.remove("hidden");
-        }
-
-        function closeModal(id) {
-            document.getElementById(`modal-${id}`).classList.add("hidden");
-        }
-        function hideElement(elementId, timeout = 2000) {
-            const element = document.getElementById(elementId);
-            if (element) {
-                setTimeout(() => {
-                    element.style.display = 'none';
-                }, timeout);
-            }
-        }
-
-        // Use the dynamic function on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            hideElement('feedback-success'); // Default timeout of 2000ms
-            hideElement('feedback-error', 3000); // Custom timeout of 3000ms
-        });
-    </script>
+    <script src="./js/events.js"></script>
+    
 </body>
 </html>

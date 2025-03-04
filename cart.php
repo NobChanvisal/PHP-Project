@@ -11,14 +11,16 @@ if (!isset($_SESSION['user_id'])) {
 $userId = $_SESSION['user_id'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pro_id'])) {
-    $proId = $_POST['pro_id']; // Corrected variable name
-    $result = $db->delete("tbcart", "product_id = ? AND user_id = ? ", [$proId, $userId]); // Use parameterized query
-    if ($result !== true) {
-        die("Delete failed: " . $result);
+    $proId = $_POST['pro_id']; 
+    $result = $db->delete("tbcart", "product_id = :id AND user_id = :userid ", [':id'=>$proId, ':userid'=>$userId]); 
+    if ($result) {
+        echo "Item successfully removed from cart.";
+    } else {
+        echo "Failed to remove item from cart.";
     }
-    // Redirect to avoid resubmission on refresh
-    header("Location: cart.php"); // Or wherever you want to redirect
-    exit(); // Important after header redirect
+
+    header("Location: cart.php"); 
+    exit(); 
 }
 
 // Fetch cart items

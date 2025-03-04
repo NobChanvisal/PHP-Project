@@ -1,21 +1,25 @@
 <?php
 session_start();
-include 'include/dbh.inc.php'; // Include the database connection
+require_once './DB_lib/Database.php'; 
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+$db = new Database(); 
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = trim($_POST['email']);
-    $passwords = trim($_POST['password']);
+    $password = trim($_POST['password']);
     
     try {
-        // Make sure to select `email`
-        $stmt = $pdo->prepare("SELECT id, username, email, password FROM tbusers WHERE email = :email");
-        $stmt->bindParam(':email', $email);
-        $stmt->execute();
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $users = $db->dbSelect(
+            'tbusers', 
+            '*', 
+            'email = :email', 
+            '', 
+            [':email' => $email]
+        ); 
 
-        if ($user) {
-            if (password_verify($passwords, $user['password'])) {
-                // Login success
+        if (!empty($users) && count($users) > 0) {
+            $user = $users[0]; 
+            if (password_verify($password, $user['password'])) {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['email'] = $user['email'];

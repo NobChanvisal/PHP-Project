@@ -1,21 +1,30 @@
 <?php
-// Include the database connection
-require_once 'include/dbh.inc.php';
+
+require_once './DB_lib/Database.php';
 
 // Get the product ID from the query string
-if (isset($_GET['id'])) {
+if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $productId = intval($_GET['id']);
     
-    // Fetch product details
+    // Fetch product details using dbSelect
     try {
-        $stmt = $pdo->prepare("SELECT * FROM tbproducts WHERE id = :id");
-        $stmt->bindParam(':id', $productId, PDO::PARAM_INT);
-        $stmt->execute();
-        $product = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$product) {
+        $db = new Database();
+
+        $products = $db->dbSelect(
+            'tbproducts',          // Table name
+            '*',                  // Columns
+            'id = :id',          // Criteria
+            '',                  // Clause
+            [':id' => $productId] // Parameters
+        );
+
+        if (empty($products)) {
             die("Product not found.");
         }
-    } catch (PDOException $e) {
+
+        $product = $products[0];  
+
+    } catch (Exception $e) {  // Changed to Exception since Database constructor throws Exception
         die("Query failed: " . $e->getMessage());
     }
 } else {

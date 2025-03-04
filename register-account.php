@@ -4,43 +4,42 @@
 <body>
 <?php
 session_start();
-include 'include/dbh.inc.php'; // Include database connection
+require_once './DB_lib/Database.php'; 
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+$db = new Database(); 
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $username = trim($_POST['username']);
     $email = trim($_POST['email']);
     $password = trim($_POST['password']);
     $confirmPassword = trim($_POST['confirm-password']);
 
-    // Validate if passwords match
     if ($password !== $confirmPassword) {
         $_SESSION['error'] = "Passwords do not match!";
         header("Location: register.php");
         exit();
     }
 
-    // Hash the password
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
     try {
-        // Check if email already exists
-        $stmt = $pdo->prepare("SELECT id FROM tbusers WHERE email = :email");
-        $stmt->bindParam(':email', $email);
-        $stmt->execute();
-        
-        if ($stmt->rowCount() > 0) {
+        $users = $db->dbSelect('tbusers', 'id', 'email = :email', '', [':email' => $email]);
+
+        if (!empty($users) && count($users) > 0) {
             $_SESSION['error'] = "Email already registered!";
             header("Location: register.php");
             exit();
         }
 
-        // Insert user data into database
-        $stmt = $pdo->prepare("INSERT INTO tbusers (username, email, password) VALUES (:username, :email, :password)");
-        $stmt->bindParam(':username', $username);
-        $stmt->bindParam(':email', $email);
-        $stmt->bindParam(':password', $hashedPassword);
-        
-        if ($stmt->execute()) {
+        $data = [
+            'username' => $username,
+            'email' => $email,
+            'password' => $hashedPassword
+        ];
+
+        $result = $db->insert('tbusers', $data); 
+
+        if ($result) {
             $_SESSION['success'] = "Account created successfully! You can now log in.";
             header("Location: login-account.php");
             exit();
@@ -49,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             header("Location: register.php");
             exit();
         }
-    } catch (PDOException $e) {
+    } catch (Exception $e) {
         $_SESSION['error'] = "Database error: " . $e->getMessage();
         header("Location: register.php");
         exit();

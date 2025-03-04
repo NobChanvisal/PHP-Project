@@ -2,11 +2,12 @@
 require_once '../DB_lib/Database.php';
 $db = new Database();
 
-// Handle Delete Request
+$categorys = $db->dbSelect('tbcategory');
+// Delete
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_category_id'])) {
     $id = $_POST['delete_category_id'];
     $result = $db->delete('tbcategory', "id = $id");
-    if ($result === true) {
+    if ($result) {
         header("Location: category.php?delete=success");
         exit();
     } else {
@@ -14,29 +15,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_category_id'])
         exit();
     }
 }
-
-// Handle Edit Request
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_category_id'])) {
-    $id = $_POST['edit_category_id'];
-    $categoryName = $_POST['category_name'];
-    $categoryDescription = $_POST['category_description'];
-
-    $data = [
-        'CategoryName' => $categoryName,
-        'CategoryDescription' => $categoryDescription
-    ];
-
-    $result = $db->update('tbcategory', $data, "id = $id");
-    if ($result === true) {
-        header("Location: category.php?edit=success");
-        exit();
-    } else {
-        header("Location: category.php?edit=error&message=" . urlencode($result));
-        exit();
+$successMessage = '';
+$errorMessage = '';
+if (isset($_GET['add'])) {
+    if ($_GET['add'] === 'success') {
+        $successMessage = "Category added successfully!";
+    } elseif ($_GET['add'] === 'error' && isset($_GET['message'])) {
+        $errorMessage = urldecode($_GET['message']);
     }
 }
 
-// Handle Add Request
+if (isset($_GET['edit'])) {
+    if ($_GET['edit'] === 'success') {
+        $successMessage = "Category updated successfully!";
+    } elseif ($_GET['edit'] === 'error' && isset($_GET['message'])) {
+        $errorMessage = urldecode($_GET['message']);
+    }
+}
+
+if (isset($_GET['delete'])) {
+    if ($_GET['delete'] === 'success') {
+        $successMessage = "Category deleted successfully!";
+    } elseif ($_GET['delete'] === 'error' && isset($_GET['message'])) {
+        $errorMessage = urldecode($_GET['message']);
+    }
+}
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_category'])) {
     $categoryName = $_POST['category_name'];
     $categoryDescription = $_POST['category_description'];
@@ -47,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_category'])) {
     ];
 
     $result = $db->Insert('tbcategory', $data);
-    if ($result === true) {
+    if ($result) {
         header("Location: category.php?add=success");
         exit();
     } else {
@@ -55,9 +58,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_category'])) {
         exit();
     }
 }
+// Edit
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_category_id'])) {
+    $id = $_POST['edit_category_id'];
+    $categoryName = $_POST['category_name'];
+    $categoryDescription = $_POST['category_description'];
 
-// Fetch categories
-$categorys = $db->readAll('tbcategory');
+    $data = [
+        'CategoryName' => $categoryName,
+        'CategoryDescription' => $categoryDescription
+    ];
+
+    $result = $db->update('tbcategory', $id, $data);
+    if ($result) {
+        header("Location: category.php?edit=success");
+        exit();
+    } else {
+        header("Location: category.php?edit=error&message=" . urlencode($result));
+        exit();
+    }
+}
+
+
 ?>
 
 <?php $title = "Category" ?>
@@ -69,30 +91,17 @@ $categorys = $db->readAll('tbcategory');
     <?php include 'include/adside.inc.php' ?>
     <main class="ml-70 p-6 pt-21">
         <div class="size-full py-5">
-            <!-- Feedback Messages -->
-            <?php
-            if (isset($_GET['delete'])) {
-                if ($_GET['delete'] === 'success') {
-                    echo '<div id="feedback-success" class="mb-4 p-4 bg-green-100 text-green-700 rounded">Category deleted successfully!</div>';
-                } elseif ($_GET['delete'] === 'error') {
-                    echo '<div id="feedback-error" class="mb-4 p-4 bg-red-100 text-red-700 rounded">Error deleting category: ' . htmlspecialchars($_GET['message']) . '</div>';
-                }
-            }
-            if (isset($_GET['edit'])) {
-                if ($_GET['edit'] === 'success') {
-                    echo '<div id="feedback-success" class="mb-4 p-4 bg-green-100 text-green-700 rounded">Category updated successfully!</div>';
-                } elseif ($_GET['edit'] === 'error') {
-                    echo '<div id="feedback-error" class="mb-4 p-4 bg-red-100 text-red-700 rounded">Error updating category: ' . htmlspecialchars($_GET['message']) . '</div>';
-                }
-            }
-            if (isset($_GET['add'])) {
-                if ($_GET['add'] === 'success') {
-                    echo '<div id="feedback-success" class="mb-4 p-4 bg-green-100 text-green-700 rounded">Category added successfully!</div>';
-                } elseif ($_GET['add'] === 'error') {
-                    echo '<div id="feedback-error" class="mb-4 p-4 bg-red-100 text-red-700 rounded">Error adding category: ' . htmlspecialchars($_GET['message']) . '</div>';
-                }
-            }
-            ?>
+            
+            <!-- Message -->
+            <?php if ($successMessage): ?>
+                <div id="feedback-success" class="mb-4 p-4 bg-green-100 text-green-800 rounded-lg">
+                    <?php echo htmlspecialchars($successMessage, ENT_QUOTES); ?>
+                </div>
+            <?php elseif ($errorMessage): ?>
+                <div id = "feedback-error" class="mb-4 p-4 bg-red-100 text-red-800 rounded-lg">
+                    <?php echo htmlspecialchars($errorMessage, ENT_QUOTES); ?>
+                </div>
+            <?php endif; ?>
 
             <div class="grid gap-4 md:grid-cols-2 pb-5">
                 <div class="w-1/2 self-end">
@@ -119,7 +128,7 @@ $categorys = $db->readAll('tbcategory');
                 </div>
             </div> 
 
-            <!-- Add Category Modal -->
+            <!--Modal -->
             <div id="add-modal" class="fixed inset-0 z-50 hidden" aria-hidden="true">
                 <div class="relative p-4 w-full h-full">
                     <div class="absolute inset-0 bg-black/50" onclick="closeAddModal()"></div>

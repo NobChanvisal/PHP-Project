@@ -7,14 +7,9 @@
       session_start(); 
     }
     
-  require_once 'include/dbh.inc.php'; // Include database connection
-
-  try {
-      $sql = "SELECT CategoryID, CategoryName FROM tbcategory";
-      $stmt = $pdo->query($sql);
-  } catch (PDOException $e) {
-      die("Error fetching categories: " . $e->getMessage());
-  }
+  require_once 'DB_lib/Database.php'; // Include database connection
+  $db = new Database();
+  $stmt =$db->dbSelect('tbcategory');
 
 
   ?>
@@ -73,12 +68,12 @@
                   id="menu-item-0"
                   >All Product</a
                 >
-                <?php
-                    // Fetch categories
-                    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                        echo "<a class='block py-2 px-5 text-sm/7 text-gray-700 hover:bg-gray-50' href='Shop.php?category=" . htmlspecialchars($row['CategoryID']) . "'>" . htmlspecialchars($row['CategoryName']) . "</a>";
-                    }
-                ?>
+                <?php foreach($stmt as $cate) :?>
+                    
+                    
+                        <a class="block py-2 px-5 text-sm/7 text-gray-700 hover:bg-gray-50" href="Shop.php?category= <?= $cate['id'] ?> "> <?=$cate['CategoryName']?> </a>
+                    
+                <?php endforeach?>
 
                 
               </div>
@@ -238,12 +233,11 @@
                       id="menu-item-0"
                       >All Product</a
                     >
-                    <?php
-                      // Fetch categories
-                      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                          echo "<a class='block py-2 px-5 text-sm/7 text-gray-700 hover:bg-gray-50' href='Shop.php?category=" . htmlspecialchars($row['CategoryID']) . "'>" . htmlspecialchars($row['CategoryName']) . "</a>";
-                      }
-                    ?>
+                    <?php foreach($stmt as $cate): ?>
+                      
+                          <a class="block py-2 px-5 text-sm/7 text-gray-700 hover:bg-gray-50" href="Shop.php?category=<?=$cate['CategoryID']?>"><?=$cate['CategoryName']?></a>;
+                   
+                      <?php endforeach ?>
                     <a
                       href="Shop?category=Table Lamps"
                       class="block rounded-lg py-2 px-5 text-sm/7 text-gray-900 hover:bg-gray-50"

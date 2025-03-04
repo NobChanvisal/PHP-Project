@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-  <?php include 'include/head.inc.php' ?>
+  <?php include 'DB_lib/Database.php' ?>
 <body>
     <?php include 'include/header.inc.php'; ?>
     <section>
@@ -36,7 +36,7 @@
       </div>
     </section>
     <section class="">
-      <div class=" px-5 sm:px-10 md:px-20 py-5 gap-11 grid grid-cols-1 sm:grid-cols-2 place-items-center">
+      <div class=" px-5 md:px-10 lg:px-20 py-5 gap-11 grid grid-cols-1 sm:grid-cols-2 place-items-center">
           <div class=" flex flex-col items-center text-center">
               <h1 class=" pb-3 text-4xl">Modern Table Lamps</h1>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
@@ -48,7 +48,7 @@
       </div>
     </section>
     <section class="">
-      <div class=" px-5 sm:px-10 md:px-20 py-5 gap-11 grid grid-cols-1 sm:grid-cols-2 place-items-center">
+      <div class=" px-5 md:px-10 lg:px-20 py-5 gap-11 grid grid-cols-1 sm:grid-cols-2 place-items-center">
       <div class=" w-full  justify-self-end">
             <img class=" w-full object-cover max-h-[450px]" src="https://arredo.qodeinteractive.com/wp-content/uploads/2018/05/home9-product10-img1-768x927.jpg" alt="">
           </div>

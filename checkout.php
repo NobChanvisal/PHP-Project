@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'include/dbh.inc.php';
+require_once './DB_lib/Database.php';
 
 if (!isset($_SESSION['user_id'])) {
     die("Please log in to checkout.");
@@ -9,29 +9,34 @@ if (!isset($_SESSION['user_id'])) {
 $userId = $_SESSION['user_id'];
 
 try {
-    // Get total amount for PayPal payment
-    $stmt = $pdo->prepare("SELECT SUM(quantity * price) AS total_amount 
-                           FROM tbcart 
-                           JOIN tbproducts ON tbcart.product_id = tbproducts.id 
-                           WHERE tbcart.user_id = :user_id");
-    $stmt->execute(['user_id' => $userId]);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    $totalAmount = $result['total_amount'] ?? 0;
+    $db = new Database();
+
+    // Get total amount for PayPal payment using dbSelect
+    $totalResult = $db->dbSelect(
+        'tbcart JOIN tbproducts ON tbcart.product_id = tbproducts.id', // Table with JOIN
+        'SUM(quantity * price) AS total_amount',                       // Columns
+        'tbcart.user_id = :user_id',                                   // Criteria
+        '',                                                           // Clause
+        ['user_id' => $userId]                                        // Parameters
+    );
+    
+    $totalAmount = $totalResult[0]['total_amount'] ?? 0;
 
     if ($totalAmount <= 0) {
         echo "Your cart is empty. <a href='Shop.php' class='bg-blue-500 text-white px-6 py-2 rounded'>Continue Shopping</a>";
         exit();
     }
 
-    // Fetch product items from tbcart
-    $stmt = $pdo->prepare("SELECT tbcart.product_id, tbproducts.pro_name, tbcart.quantity, tbproducts.price 
-                           FROM tbcart 
-                           JOIN tbproducts ON tbcart.product_id = tbproducts.id 
-                           WHERE tbcart.user_id = :user_id");
-    $stmt->execute(['user_id' => $userId]);
-    $productItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // Fetch product items from tbcart using dbSelect
+    $productItems = $db->dbSelect(
+        'tbcart JOIN tbproducts ON tbcart.product_id = tbproducts.id', // Table with JOIN
+        'tbcart.product_id, tbproducts.pro_name, tbcart.quantity, tbproducts.price', // Columns
+        'tbcart.user_id = :user_id',                                   // Criteria
+        '',                                                           // Clause
+        ['user_id' => $userId]                                        // Parameters
+    );
 
-} catch (PDOException $e) {
+} catch (Exception $e) {
     die("Error: " . $e->getMessage());
 }
 ?>
@@ -47,7 +52,6 @@ try {
 <body>
 <?php include 'include/header.inc.php'; ?>
 <main>
-    <!-- <h1 class="text-4xl font-bold mb-10 text-center underline underline-offset-8">Checkout</h1> -->
     <section class="bg-white antialiased">
       <form id="checkoutForm" action="#" class="px-5 sm:px-10 max-w-6xl mx-auto pt-[140px]">
         <h1 class="text-4xl font-bold mb-26 text-center underline underline-offset-8">Checkout</h1>
@@ -56,7 +60,6 @@ try {
             <div class="space-y-4">
               <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Delivery Details</h2>
               <div class="flex items-center justify-center">
-                <!-- Author: FormBold Team -->
                 <div class="mx-auto w-full bg-white">
                     <div class="mb-5">
                       <div class="mb-2 flex items-center gap-2">
@@ -128,87 +131,45 @@ try {
                     </div>
                 </div>
               </div>
-
             </div>
           </div>
 
-          <div
-            class="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md"
-          >
+          <div class="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
             <div class="flow-root">
               <div class="-my-3 divide-y divide-gray-200 dark:divide-gray-800">
                 <dl class="flex items-center justify-between gap-4 py-3">
-                  <dt
-                    class="text-base font-normal text-gray-500 dark:text-gray-400"
-                  >
-                    Subtotal
-                  </dt>
-                  <dd
-                    class="text-base font-medium text-gray-900 dark:text-white"
-                  >
-                  $<?php echo number_format($totalAmount, 2); ?>
-                  </dd>
+                  <dt class="text-base font-normal text-gray-500 dark:text-gray-400">Subtotal</dt>
+                  <dd class="text-base font-medium text-gray-900 dark:text-white">$<?php echo number_format($totalAmount, 2); ?></dd>
                 </dl>
-
                 <dl class="flex items-center justify-between gap-4 py-3">
-                  <dt
-                    class="text-base font-normal text-gray-500 dark:text-gray-400"
-                  >
-                    Savings
-                  </dt>
+                  <dt class="text-base font-normal text-gray-500 dark:text-gray-400">Savings</dt>
                   <dd class="text-base font-medium text-green-500">0</dd>
                 </dl>
-
                 <dl class="flex items-center justify-between gap-4 py-3">
-                  <dt
-                    class="text-base font-normal text-gray-500 dark:text-gray-400"
-                  >
-                    Store Pickup
-                  </dt>
-                  <dd
-                    class="text-base font-medium text-gray-900 dark:text-white"
-                  >
-                  $<?php echo number_format($storePickup, 2); ?>
-                  </dd>
+                  <dt class="text-base font-normal text-gray-500 dark:text-gray-400">Store Pickup</dt>
+                  <dd class="text-base font-medium text-gray-900 dark:text-white">$<?php echo number_format($storePickup, 2); ?></dd>
                 </dl>
-
                 <dl class="flex items-center justify-between gap-4 py-3">
-                  <dt
-                    class="text-base font-normal text-gray-500 dark:text-gray-400"
-                  >
-                    Tax (5%)
-                  </dt>
-                  <dd
-                    class="text-base font-medium text-gray-900 dark:text-white"
-                  >
-                  $<?php echo number_format($taxAmount, 2); ?>
-                  </dd>
+                  <dt class="text-base font-normal text-gray-500 dark:text-gray-400">Tax (5%)</dt>
+                  <dd class="text-base font-medium text-gray-900 dark:text-white">$<?php echo number_format($taxAmount, 2); ?></dd>
                 </dl>
-
                 <dl class="flex items-center justify-between gap-4 py-3">
-                  <dt class="text-base font-bold text-gray-900 dark:text-white">
-                    Total
-                  </dt>
-                  <dd class="text-base font-bold text-gray-900 dark:text-white">
-                  $<?php echo number_format($totalWithTax, 2); ?>
-                  </dd>
+                  <dt class="text-base font-bold text-gray-900 dark:text-white">Total</dt>
+                  <dd class="text-base font-bold text-gray-900 dark:text-white">$<?php echo number_format($totalWithTax, 2); ?></dd>
                 </dl>
               </div>
             </div>
-            <p class="text-sm font-normal text-gray-500">Your need to fill delivery inform to payment.</p>
-
+            <p class="text-sm font-normal text-gray-500">You need to fill delivery info to proceed with payment.</p>
             <div class="space-y-3">
-                <div id="paypal-button-container" class="pointer-events-none opacity-50">
-                </div>
+                <div id="paypal-button-container" class="pointer-events-none opacity-50"></div>
             </div>
           </div>
         </div>
       </form>
     </section>
-    
 
     <script src="https://www.paypal.com/sdk/js?client-id=ATzlLb_R9Ub3MshTOLuUFbMKQpHL37PU4YiEr1708LJFnFdeg2gQy0ohZe4b6WxTFM_ThEr2UR8uVy-_&currency=USD"></script>
-  <script>
+    <script>
     function validateForm() {
         const requiredFields = ['name', 'phone', 'email', 'country', 'city'];
         let isValid = true;
@@ -231,7 +192,7 @@ try {
     document.querySelectorAll('input').forEach(input => {
         input.addEventListener('input', validateForm);
     });
-    const productItems = <?php echo json_encode($productItems); ?>;
+
     paypal.Buttons({
         createOrder: function(data, actions) {
             return actions.order.create({
@@ -242,35 +203,39 @@ try {
         },
         onApprove: function(data, actions) {
             return actions.order.capture().then(function(details) {
-              const formData = new FormData(document.getElementById('checkoutForm'));
-                            const deliveryDetails = {};
-                            formData.forEach((value, key) => deliveryDetails[key] = value);
+                const formData = new FormData(document.getElementById('checkoutForm'));
+                const deliveryDetails = {};
+                formData.forEach((value, key) => deliveryDetails[key] = value);
+                
                 fetch('process_payment.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                      user_id: <?php echo $userId; ?>,
-                                    payerID: details.payer.payer_id,
-                                    orderID: details.id,
-                                    total_amount: '<?php echo number_format($totalWithTax, 2, '.', ''); ?>',
-                                    product_items: productItems,
-                                    delivery_details: deliveryDetails
+                        user_id: <?php echo $userId; ?>,
+                        payerID: details.payer.payer_id,
+                        orderID: details.id,
+                        total_amount: '<?php echo number_format($totalWithTax, 2, '.', ''); ?>',
+                        product_items: <?php echo json_encode($productItems); ?>,
+                        delivery_details: deliveryDetails
                     })
                 }).then(response => response.json())
-                  .then(data => {
-                    if (data.status === 'success') { // Check the JSON response
+                .then(data => {
+                    if (data.status === 'success') {
                         alert("Payment Successful!");
-                        window.location.href = `invoice.php?order_id=${details.id}`;// Reload the page after the alert
+                        window.location.href = `invoice.php?order_id=${details.id}`; // Fixed orderid to order_id
                     } else {
-                        alert("Payment processing failed: " + data.message); // Display error
-                        console.error("Payment processing error:", data.message); // Log error
+                        alert("Payment processing failed: " + data.message);
+                        console.error("Payment processing error:", data.message);
                     }
-                  });
+                })
+                .catch(error => {
+                    console.error("Fetch error:", error);
+                    alert("An error occurred while processing payment.");
+                });
             });
         }
     }).render('#paypal-button-container');
-</script>
-
+    </script>
 </main>
 <?php include 'include/footer.inc.php'; ?>
 </body>

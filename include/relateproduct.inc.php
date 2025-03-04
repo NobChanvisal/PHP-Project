@@ -1,34 +1,42 @@
 <?php
-require_once 'include/dbh.inc.php';
+require_once './DB_lib/Database.php';  // Updated path to match your previous examples
 
-if (isset($_GET['id'])) {
+if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $productId = intval($_GET['id']);
 
     try {
-        // Fetch current product details
-        $stmt = $pdo->prepare("SELECT * FROM tbproducts WHERE id = :id");
-        $stmt->bindParam(':id', $productId, PDO::PARAM_INT);
-        $stmt->execute();
-        $product = $stmt->fetch(PDO::FETCH_ASSOC);
+        $db = new Database();
 
-        if (!$product) {
+        $products = $db->dbSelect(
+            'tbproducts',           
+            '*',                   
+            'id = :id',           
+            '',                   
+            [':id' => $productId] 
+        );
+
+        if (empty($products)) {
             die("Product not found.");
         }
+        
+        $relatedProducts = $db->dbSelect(
+            'tbproducts',                           
+            '*',                                   
+            'CategoryID = :category AND id != :id', 
+            'LIMIT 4',                           
+            [                                     
+                ':category' => $product['CategoryID'],
+                ':id' => $productId
+            ]
+        );
 
-        // Fetch related products by category
-        $stmt = $pdo->prepare("SELECT * FROM tbproducts WHERE CategoryID = :category AND id != :id LIMIT 4");
-        $stmt->bindParam(':category', $product['CategoryID'], PDO::PARAM_INT);
-        $stmt->bindParam(':id', $productId, PDO::PARAM_INT);
-        $stmt->execute();
-        $relatedProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
+    } catch (Exception $e) {  
         die("Query failed: " . $e->getMessage());
     }
 } else {
     die("Invalid product ID.");
 }
 ?>
-
 <section>
     <div class="mt-10">
         <h1 class="px-20 pb-2 text-[30px]">Related Products</h1>
@@ -42,25 +50,29 @@ if (isset($_GET['id'])) {
                         <?php endif; ?>
 
                         <div>
-                            <img class="w-full cover" src="image/products/<?php echo $product['imageUrl'];?>" alt="<?php echo htmlspecialchars($product['pro_name'], ENT_QUOTES); ?>">
+                            <img class="w-full h-full cover" style="max-height: 700px;" src="image/products/<?php echo $product['imageUrl'];?>" alt="<?php echo htmlspecialchars($product['pro_name'], ENT_QUOTES); ?>">
                         </div>
                         <div class="pt-3">
                             <p class="text-14px text-slate-700">
-                                <?php
-                                    $categoryName = "Uncategorized";
-                                    if (isset($product['CategoryID'])) { // Now access $product['CategoryID']
-                                        try {
-                                            $stmt = $pdo->prepare("SELECT CategoryName FROM tbcategory WHERE CategoryID = ?");
-                                            $stmt->execute([$product['CategoryID']]);
-                                            $category = $stmt->fetch(PDO::FETCH_ASSOC);
-                                            if ($category) {
-                                                $categoryName = $category['CategoryName']; // or $category['CategoryName'] if that's the actual column name
-                                            }
-                                        } catch (PDOException $e) {
-                                            error_log("Category query failed: " . $e->getMessage());
+                            <?php
+                                $categoryNameDisplay = "Uncategorized";
+                                if (isset($product['CategoryID']) && !empty($product['CategoryID'])) {
+                                    try {
+                                        $category = $db->dbSelect(
+                                            'tbcategory',
+                                            '*',
+                                            'id = :id',
+                                            '',
+                                            [':id' => $product['CategoryID']]
+                                        );
+                                        if (!empty($category)) {
+                                            $categoryNameDisplay = $category[0]['CategoryName'];
                                         }
+                                    } catch (PDOException $e) {
+                                        error_log("Category query failed: " . $e->getMessage());
                                     }
-                                    echo htmlspecialchars($categoryName, ENT_QUOTES);
+                                }
+                                echo htmlspecialchars($categoryNameDisplay, ENT_QUOTES);
                                 ?>
                             </p>
                             <p class="text-[17px] font-semibold"><?php echo htmlspecialchars($product['pro_name'], ENT_QUOTES); ?></p>
