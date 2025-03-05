@@ -3,7 +3,6 @@
 class Database {
     private $pdo;
 
-    // Constructor to initialize PDO connection
     public function __construct() {
         try {
             $this->pdo = $this->dbConn();
@@ -12,7 +11,7 @@ class Database {
         }
     }
 
-    // Private method for database connection
+    
     private function dbConn() {
         $host = 'localhost';
         $dbname = 'lamps_store';

@@ -250,7 +250,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_product'])) {
             <!-- Add Product Modal -->
             <div class="fixed inset-0 z-50 hidden" id="modal-addproduct">
                 <?php 
-                $categories = $db->readAll('tbcategory');
+                $categories = $db->dbSelect('tbcategory');
                 ?>
                 <div class="absolute inset-0 bg-black/50" onclick="closeModal('addproduct')"></div>
                 <div class="relative z-10 bg-white rounded-lg w-11/12 md:w-1/2 lg:w-1/3 p-6 mx-auto mt-20">
@@ -422,20 +422,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_product'])) {
                                     </div>
                                 </th>
                                 <td class="px-4 py-4">
-                                    <?php
-                                    $categoryName = "Uncategorized";
-                                    if (isset($product['CategoryID'])) {
-                                        try {
-                                            $category = $db->read('tbcategory', $product['CategoryID']); // Assuming a 'tbcategories' table
-                                            if ($category && isset($category['CategoryName'])) {
-                                                $categoryName = $category['CategoryName'];
-                                            }
-                                        } catch (PDOException $e) {
-                                            error_log("Category query failed: " . $e->getMessage());
+                                <?php
+                                $categoryNameDisplay = "Uncategorized";
+                                if (isset($product['CategoryID']) && !empty($product['CategoryID'])) {
+                                    try {
+                                        $category = $db->dbSelect(
+                                            'tbcategory',
+                                            '*',
+                                            'id = :id',
+                                            '',
+                                            [':id' => $product['CategoryID']]
+                                        );
+                                        if (!empty($category)) {
+                                            $categoryNameDisplay = $category[0]['CategoryName'];
                                         }
+                                    } catch (PDOException $e) {
+                                        error_log("Category query failed: " . $e->getMessage());
                                     }
-                                    echo htmlspecialchars($categoryName, ENT_QUOTES);
-                                    ?>
+                                }
+                                echo htmlspecialchars($categoryNameDisplay, ENT_QUOTES);
+                                ?>
                                 </td>
                                 <td class="px-4 py-4">$<?php echo htmlspecialchars($product['price'], ENT_QUOTES); ?></td>
                                 <td class="px-4 py-4"><?php echo ($product['prevPrice'] > 0 ? "$" . htmlspecialchars($product['prevPrice'], ENT_QUOTES) : "Null"); ?></td>
